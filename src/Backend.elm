@@ -20,7 +20,7 @@ app =
 
 init : ( Model, Cmd BackendMsg )
 init =
-    ( { message = "Hello!" }
+    ( { message = "Hello!", clients = [] }
     , Cmd.none
     )
 
@@ -39,7 +39,26 @@ updateFromFrontend sessionId clientId msg model =
             ( model, Cmd.none )
 
         NewClient ->
-            ( model, sendToFrontend clientId (UpdateMessage model.message) )
+            ( { model | clients = clientId :: model.clients }
+            , sendToFrontend clientId (UpdateMessage model.message)
+            )
 
         SetMessage newMessage ->
-            ( { model | message = newMessage }, sendToFrontend clientId (UpdateMessage newMessage) )
+            ( { model | message = newMessage }
+            , sendToAll (UpdateMessage newMessage) model.clients
+            )
+
+
+sendToAll : ToFrontend -> List ClientId -> Cmd a
+sendToAll message clients =
+    let
+        send m c =
+            sendToFrontend c m
+    in
+    clients
+        |> List.map (send message)
+        |> Cmd.batch
+
+
+
+-- FEEDBACK: why is
