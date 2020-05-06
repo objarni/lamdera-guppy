@@ -1,5 +1,6 @@
 module Backend exposing (Model, app, init, update, updateFromFrontend)
 
+import Dict
 import Html
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
 import Types exposing (..)
@@ -20,7 +21,7 @@ app =
 
 init : ( Model, Cmd BackendMsg )
 init =
-    ( { message = "Hello!", clients = [] }
+    ( { message = "Hello!", clients = Dict.empty }
     , Cmd.none
     )
 
@@ -39,13 +40,20 @@ updateFromFrontend sessionId clientId msg model =
             ( model, Cmd.none )
 
         NewClient ->
-            ( { model | clients = clientId :: model.clients }
+            let
+                key =
+                    clientId
+
+                value =
+                    { x = 50, y = 50 }
+            in
+            ( { model | clients = Dict.insert key value model.clients }
             , sendToFrontend clientId (UpdateMessage model.message)
             )
 
         SetMessage newMessage ->
             ( { model | message = newMessage }
-            , sendToAll (UpdateMessage newMessage) model.clients
+            , sendToAll (UpdateMessage newMessage) (Dict.keys model.clients)
             )
 
 
@@ -61,4 +69,7 @@ sendToAll message clients =
 
 
 
--- FEEDBACK: why is
+-- TODO
+-- visa hur många som är connectade
+-- heartbeat system (timeout för disconnect detection)
+-- färgblobbar som styrs med tangentbord

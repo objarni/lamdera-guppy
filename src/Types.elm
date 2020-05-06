@@ -2,6 +2,7 @@ module Types exposing (BackendModel, BackendMsg(..), FrontendModel, FrontendMsg(
 
 import Browser exposing (UrlRequest)
 import Browser.Navigation exposing (Key)
+import Dict
 import Lamdera
 import Url exposing (Url)
 
@@ -14,7 +15,7 @@ type alias FrontendModel =
 
 type alias BackendModel =
     { message : String
-    , clients : List Lamdera.ClientId
+    , clients : Dict.Dict Lamdera.ClientId { x : Int, y : Int }
     }
 
 
